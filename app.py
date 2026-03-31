@@ -19,6 +19,7 @@ def get_pdf_text(pdf_docs):
 def get_vectorstore(chunks):
     embeddings=HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
     db=FAISS.from_texts(chunks, embeddings)
+    db.save_local("faiss_index")
     return db
 
 def get_conversation(vectorstore):
@@ -60,7 +61,21 @@ def main():
     load_dotenv()
 
     if "conversation" not in st.session_state:
-        st.session_state.conversation=None
+        try:
+            embeddings = HuggingFaceEmbeddings(
+                model_name='sentence-transformers/all-MiniLM-L6-v2'
+            )
+
+            vectorstore = FAISS.load_local(
+                "faiss_index",
+                embeddings,
+                allow_dangerous_deserialization=True
+            )
+
+            st.session_state.conversation = get_conversation(vectorstore)
+
+        except:
+            st.session_state.conversation = None
 
     st.set_page_config(page_title='Chat with multiple PDFs', page_icon=':books:')
     st.header('Chat with multiple PDFs')
