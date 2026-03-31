@@ -6,7 +6,7 @@ from langchain_classic.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings,HuggingFaceEndpoint,ChatHuggingFace
 from langchain_classic.memory import ConversationBufferMemory
 from langchain_classic.chains import ConversationalRetrievalChain
-
+from langchain_core.prompts import PromptTemplate
 
 def get_pdf_text(pdf_docs):
     text=""
@@ -29,11 +29,30 @@ def get_conversation(vectorstore):
         max_new_tokens=512,
     )
 
+    prompt=PromptTemplate(template="""
+    You are a helpful assistant.
+
+    Answer the question ONLY using the provided context from the PDFs.
+
+    If the answer is not in the context, say:
+    "This information is not available in the provided documents."
+
+    Context:
+    {context}
+
+    Question:
+    {question}
+
+    Answer:
+    """,
+    input_variables=["question","context"])
+
     model=ChatHuggingFace(llm=llm)
     conversation=ConversationalRetrievalChain.from_llm(
         llm=model,
         retriever=vectorstore.as_retriever(),
-        memory=memory
+        memory=memory,
+        combine_docs_chain_kwargs={"prompt":prompt}
     )
     return conversation
 
