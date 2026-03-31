@@ -61,6 +61,8 @@ def main():
     load_dotenv()
 
     if "conversation" not in st.session_state:
+        st.session_state.conversation = None
+    if "conversation" not in st.session_state:
         try:
             embeddings = HuggingFaceEmbeddings(
                 model_name='sentence-transformers/all-MiniLM-L6-v2'
