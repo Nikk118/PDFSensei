@@ -60,8 +60,7 @@ def get_conversation(vectorstore):
 def main():
     load_dotenv()
 
-    if "conversation" not in st.session_state:
-        st.session_state.conversation = None
+    
     if "conversation" not in st.session_state:
         try:
             embeddings = HuggingFaceEmbeddings(
