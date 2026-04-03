@@ -30,23 +30,27 @@ def get_conversation(vectorstore):
         max_new_tokens=512,
     )
 
-    prompt=PromptTemplate(template="""
-    You are a helpful assistant.
+    prompt = PromptTemplate(
+    template="""
+You are a smart and helpful AI assistant.
 
-    Answer the question ONLY using the provided context from the PDFs.
+Behavior rules:
+1. If the user greets (e.g., "hi", "hello"), respond naturally and politely.
+2. If the question is related to the provided context, answer using ONLY that context.
+3. If the answer is not found in the context but the question is general knowledge, answer it briefly.
+4. If you truly don't know the answer, say "I don't know".
+5. Keep responses clear, helpful, and under 4 sentences.
 
-    If the answer is not in the context, say:
-    "This information is not available in the provided documents."
+Context:
+{context}
 
-    Context:
-    {context}
+Question:
+{question}
 
-    Question:
-    {question}
-
-    Answer:
-    """,
-    input_variables=["question","context"])
+Answer:
+""",
+    input_variables=["question", "context"]
+)
 
     model=ChatHuggingFace(llm=llm)
     conversation=ConversationalRetrievalChain.from_llm(
